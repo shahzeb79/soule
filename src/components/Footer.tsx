@@ -49,7 +49,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
                   onClick={() => onSelectCategory('men')}
                   className="hover:text-black cursor-pointer"
                 >
-                  Men's Shoes (5 styles)
+                  Men's Shoes
                 </button>
               </li>
               <li>
@@ -57,7 +57,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
                   onClick={() => onSelectCategory('women')}
                   className="hover:text-black cursor-pointer"
                 >
-                  Women's Shoes (5 styles)
+                  Women's Shoes
                 </button>
               </li>
               <li>
@@ -65,7 +65,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
                   onClick={() => onSelectCategory('kids')}
                   className="hover:text-black cursor-pointer"
                 >
-                  Kids' Shoes (5 styles)
+                  Kids' Shoes
                 </button>
               </li>
               <li>
@@ -73,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
                   onClick={() => onSelectCategory('all')}
                   className="hover:text-black cursor-pointer"
                 >
-                  Full Footwear Line (15 styles)
+                  Full Footwear Line
                 </button>
               </li>
             </ul>

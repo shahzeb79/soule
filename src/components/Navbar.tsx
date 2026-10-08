@@ -202,19 +202,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => handleNavClick('men')}
               className="text-left py-2 border-b border-neutral-100 text-neutral-900"
             >
-              Men's Footwear (5 styles)
+              Men's Footwear
             </button>
             <button
               onClick={() => handleNavClick('women')}
               className="text-left py-2 border-b border-neutral-100 text-neutral-900"
             >
-              Women's Footwear (5 styles)
+              Women's Footwear
             </button>
             <button
               onClick={() => handleNavClick('kids')}
               className="text-left py-2 border-b border-neutral-100 text-neutral-900"
             >
-              Kids' Footwear (5 styles)
+              Kids' Footwear
             </button>
             <button
               onClick={() => {

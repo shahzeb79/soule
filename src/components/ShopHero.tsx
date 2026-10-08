@@ -1,6 +1,6 @@
 import React from 'react';
 import { Category, Product } from '../types';
-import { HERO_CAMPAIGN_IMG } from '../cms/productsData';
+import { HERO_CAMPAIGN_IMG, PRODUCTS_DATA } from '../cms/productsData';
 import { ArrowUpRight, Zap, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface ShopHeroProps {
@@ -14,6 +14,11 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
   onSelectCategory,
   onOpenFlagship
 }) => {
+  const menCount = PRODUCTS_DATA.filter((p) => p.gender === 'men').length;
+  const womenCount = PRODUCTS_DATA.filter((p) => p.gender === 'women').length;
+  const kidsCount = PRODUCTS_DATA.filter((p) => p.gender === 'kids').length;
+  const totalCount = PRODUCTS_DATA.length;
+
   const getTitles = () => {
     switch (category) {
       case 'men':
@@ -64,10 +69,10 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
             <div className="pt-2">
               <div className="inline-flex p-1 bg-neutral-100 rounded-xl border border-neutral-200/60 max-w-full overflow-x-auto">
                 {[
-                  { id: 'all', label: 'All (15)' },
-                  { id: 'men', label: "Men's (5)" },
-                  { id: 'women', label: "Women's (5)" },
-                  { id: 'kids', label: "Kids' (5)" }
+                  { id: 'all', label: `All (${totalCount})` },
+                  { id: 'men', label: `Men's (${menCount})` },
+                  { id: 'women', label: `Women's (${womenCount})` },
+                  { id: 'kids', label: `Kids' (${kidsCount})` }
                 ].map((tab) => (
                   <button
                     key={tab.id}
