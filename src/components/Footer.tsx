@@ -1,6 +1,7 @@
 import React from 'react';
 import { Category } from '../types';
 import { ArrowUp, Globe, ShieldCheck } from 'lucide-react';
+import { SouleLogo } from './SouleLogo';
 
 interface FooterProps {
   onSelectCategory: (c: Category) => void;
@@ -16,8 +17,8 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
       {/* Top Banner */}
       <div className="border-b border-neutral-100 py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <span className="text-xl font-black tracking-tighter lowercase font-mono">soule</span>
+          <div className="space-y-2">
+            <SouleLogo size={28} color="#0CB581" showText={true} />
             <p className="text-neutral-500 max-w-md">
               Swiss-engineered performance footwear. Soft landings, explosive take-offs, and zero-gravity comfort for runners worldwide.
             </p>

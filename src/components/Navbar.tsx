@@ -3,6 +3,7 @@ import { Search, ShoppingBag, Globe, Menu, X, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { Category, Currency } from '../types';
+import { SouleLogo } from './SouleLogo';
 
 interface NavbarProps {
   currentCategory: Category;
@@ -32,6 +33,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 transition-colors">
+      {/* Promotion Bar */}
+      <div className="bg-[#121212] text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
+        <span>Engineered in Zurich</span>
+        <span className="opacity-40">·</span>
+        <span>Free carbon-neutral shipping on orders over CHF 150</span>
+        <span className="opacity-40">·</span>
+        <span className="text-neutral-300 hidden sm:inline">Use code <strong className="text-white underline decoration-dotted">SOULE10</strong> for 10% off</span>
+      </div>
 
       {/* Main Navigation - 3-Zone Top Bar Contract */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -42,13 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2 group text-left cursor-pointer focus:outline-none"
             aria-label="soule home"
           >
-            {/* Minimalist circular glyph inspired by Swiss cloud pods */}
-            <div className="w-6 h-6 rounded-full border-[2.5px] border-black flex items-center justify-center transition-transform group-hover:scale-105">
-              <div className="w-2 h-2 rounded-full bg-black"></div>
-            </div>
-            <span className="text-2xl font-bold tracking-tighter text-[#121212] font-mono lowercase">
-              soule
-            </span>
+            <SouleLogo size={32} color="#0CB581" showText={true} />
           </button>
         </div>
 
