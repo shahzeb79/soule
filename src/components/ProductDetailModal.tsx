@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, ProductColorway, ProductSize } from '../types';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -49,6 +49,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [addSuccess, setAddSuccess] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [activeTab, setActiveTab] = useState<'tech' | 'specs' | 'reviews'>('tech');
+  const [imageError, setImageError] = useState(false);
+
+  // Reset imageError when colorway changes
+  useEffect(() => {
+    setImageError(false);
+  }, [selectedColorway.id]);
 
   const handleAngleCycle = () => {
     setIsRotating(true);
@@ -114,11 +120,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 }`}
               >
                 {/* If selected colorway has a realistic image and angle is side */}
-                {selectedColorway.image && activeAngle === 'side' ? (
+                {selectedColorway.image && activeAngle === 'side' && !imageError ? (
                   <img
                     src={selectedColorway.image}
                     alt={`${product.name} - ${selectedColorway.name}`}
                     referrerPolicy="no-referrer"
+                    onError={() => setImageError(true)}
                     className="w-full h-full object-contain filter drop-shadow-xl"
                   />
                 ) : (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, ProductColorway, ProductSize } from '../types';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -20,11 +20,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [hoveredColorway, setHoveredColorway] = useState<ProductColorway | null>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [recentlyAddedSize, setRecentlyAddedSize] = useState<string | null>(null);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
 
   const activeColorway = hoveredColorway || selectedColorway;
+
+  // Reset image error state when active colorway changes
+  useEffect(() => {
+    setImageFailed(false);
+  }, [activeColorway.id]);
 
   const handleQuickAdd = (size: ProductSize, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -66,11 +72,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Shoe Image / Graphic */}
         <div className="w-full h-full flex items-center justify-center relative transition-transform duration-500 ease-out group-hover:scale-[1.04]">
-          {activeColorway.image ? (
+          {activeColorway.image && !imageFailed ? (
             <img
               src={activeColorway.image}
               alt={`${product.name} - ${activeColorway.name}`}
               referrerPolicy="no-referrer"
+              onError={() => setImageFailed(true)}
               className="w-full h-full object-contain filter drop-shadow-md"
             />
           ) : (

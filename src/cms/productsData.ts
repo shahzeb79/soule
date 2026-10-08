@@ -1,7 +1,12 @@
 import { Product } from '../types';
+import heroCampaignImg from '../assets/images/hero_soule_campaign_1791458810634.jpg';
+import techSoleDetailImg from '../assets/images/tech_soule_sole_detail_1791458872558.jpg';
+import productCloudrushImg from '../assets/images/product_soule_cloudrush_1791458827460.jpg';
+import productAeroflyImg from '../assets/images/product_soule_aerofly_women_1791458843649.jpg';
+import productStriderImg from '../assets/images/product_soule_strider_kids_1791458855619.jpg';
 
-export const HERO_CAMPAIGN_IMG = '/src/assets/images/hero_soule_campaign_1791458810634.jpg';
-export const TECH_SOLE_DETAIL_IMG = '/src/assets/images/tech_soule_sole_detail_1791458872558.jpg';
+export const HERO_CAMPAIGN_IMG = heroCampaignImg;
+export const TECH_SOLE_DETAIL_IMG = techSoleDetailImg;
 
 export const PRODUCTS_DATA: Product[] = [
   // ==========================================
@@ -47,7 +52,7 @@ export const PRODUCTS_DATA: Product[] = [
         name: 'Chalk White / Slate Grey',
         primaryColorHex: '#E2E8F0',
         accentColorHex: '#1E293B',
-        image: '/src/assets/images/product_soule_cloudrush_1791458827460.jpg'
+        image: productCloudrushImg
       },
       {
         id: 'cr-all-black',
@@ -353,7 +358,7 @@ export const PRODUCTS_DATA: Product[] = [
         name: 'Lavender Mist / Chalk White',
         primaryColorHex: '#E9D5FF',
         accentColorHex: '#7E22CE',
-        image: '/src/assets/images/product_soule_aerofly_women_1791458843649.jpg'
+        image: productAeroflyImg
       },
       {
         id: 'af-rose-cloud',
@@ -655,7 +660,7 @@ export const PRODUCTS_DATA: Product[] = [
         name: 'Electric Cobalt / Bone White',
         primaryColorHex: '#E2E8F0',
         accentColorHex: '#2563EB',
-        image: '/src/assets/images/product_soule_strider_kids_1791458855619.jpg'
+        image: productStriderImg
       },
       {
         id: 'ms-lava-black',
@@ -681,68 +686,6 @@ export const PRODUCTS_DATA: Product[] = [
       { size: 'US 6 (Kids)', us: 'US 6', eu: 'EU 38.5', inStock: true }
     ]
   },
-  {
-  id: 'men-soule-apex-carbon',                // Unique string ID
-  slug: 'soule-apex-carbon',                  // URL-friendly slug
-  name: 'Apex Carbon Strike',                 // Product display name
-  subCategory: 'Marathon & Speed',            // Subtitle displayed on cards
-  gender: 'men',                              // 'men' | 'women' | 'kids'
-  activity: 'Speed & Racing',                 // 'Road Running' | 'Trail Running' | 'All Day' | 'Speed & Racing' | 'Hiking & Trekking'
-  cushioning: 'Responsive',                   // 'Plush' | 'Max' | 'Responsive' | 'Ultralight'
-  priceCHF: 259.90,                           // Price in Swiss Francs (auto-converts to EUR, USD, GBP)
-  isNew: true,                                // Displays in 'Newest' sort
-  isBestSeller: true,                         // Displays in 'Featured' sort
-  badge: 'Carbon Blade',                      // Optional text badge on card
-  weight: '190 g / 6.7 oz',                   // Weight specification
-  heelDrop: '5 mm',                           // Drop measurement
-  stability: 'Neutral Agile',                 // Stability type
-  lacing: 'Speed Lacing System',              // Lacing type
-  description: 'Ultra-responsive carbon plated shoe engineered for sub-elite marathon competition.',
-  features: [
-    'Sub-200g ultralight construction for high cadence',
-    'CarbonSpeed™ propulsion plate',
-    'Micro-lug wet asphalt traction'
-  ],
-  technologies: [
-    { 
-      name: 'CarbonBlade™', 
-      description: 'Rigid kinetic plate returning 91% of downward energy.' 
-    },
-    { 
-      name: 'HelionAir™ Core', 
-      description: 'Ultra-low density foam matrix for maximum bounce.' 
-    }
-  ],
-  sustainability: {
-    recycledContent: '46% Total Recycled Content',
-    details: 'Upper spun from 100% recycled high-tensile filament yarn.'
-  },
-  rating: 4.9,                                // Initial rating (1.0 - 5.0)
-  reviewCount: 42,                            // Initial review count
-  colorways: [
-    {
-      id: 'apex-white-volt',
-      name: 'Pure White / Volt Green',
-      primaryColorHex: '#F8FAFC',             // Base shoe color
-      accentColorHex: '#84CC16',              // Accent pods & speedboard color
-      image: ''                               // Optional image path. Leave empty to use the dynamic multi-angle 3D vector engine!
-    },
-    {
-      id: 'apex-stealth-black',
-      name: 'Stealth Black / Carbon',
-      primaryColorHex: '#1E293B',
-      accentColorHex: '#0F172A',
-      image: ''
-    }
-  ],
-  sizes: [
-    { size: 'US 8', us: 'US 8', eu: 'EU 41.5', inStock: true },
-    { size: 'US 8.5', us: 'US 8.5', eu: 'EU 42', inStock: true },
-    { size: 'US 9', us: 'US 9', eu: 'EU 42.5', inStock: true, stockCount: 2 }, // Low-stock indicator
-    { size: 'US 9.5', us: 'US 9.5', eu: 'EU 43', inStock: true },
-    { size: 'US 10', us: 'US 10', eu: 'EU 44', inStock: false }                // Out of stock
-  ]
-},
   {
     id: 'kids-cloudcub-sprint',
     slug: 'cloudcub-sprint',
