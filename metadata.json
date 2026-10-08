@@ -1,0 +1,6 @@
+{
+  "name": "soule — Engineered Performance Footwear",
+  "description": "High-performance Swiss-engineered footwear for Men, Women, and Kids. Discover zero-gravity cushioning, high-fidelity micro-interactions, and precision running shoes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
