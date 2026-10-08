@@ -52,11 +52,6 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Typography & Category Selector */}
           <div className="lg:col-span-7 space-y-5">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-              <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
-              <span>Zurich Biomechanics · 2026 Collection</span>
-            </div>
-
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#121212] leading-[1.1] max-w-xl">
               {title}
             </h1>
