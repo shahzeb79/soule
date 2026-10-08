@@ -12,11 +12,6 @@ export const TechnologySection: React.FC<{ onExploreFootwear: () => void }> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Section Heading */}
         <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">
-            <span className="w-2 h-2 rounded-full bg-white"></span>
-            <span>Swiss Engineering · Zurich Biomechanics</span>
-          </div>
-
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
             Soft landings. Explosive take-offs. Pure motion.
           </h2>
