@@ -9,11 +9,11 @@ export interface AdminCredentials {
 }
 
 export const getExpectedAdminUsername = (): string => {
-  return (import.meta.env.VITE_ADMIN_USERNAME as string) || 'admin';
+  return (import.meta.env.VITE_ADMIN_USERNAME as string);
 };
 
 export const getExpectedAdminPassword = (): string => {
-  return (import.meta.env.VITE_ADMIN_PASSWORD as string) || 'soule2026!';
+  return (import.meta.env.VITE_ADMIN_PASSWORD as string);
 };
 
 export const isAdminAuthenticated = (): boolean => {

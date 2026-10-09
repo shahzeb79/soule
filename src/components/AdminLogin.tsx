@@ -165,14 +165,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
                 />
                 <span className="text-xs text-neutral-600 font-medium">Keep me logged in</span>
               </label>
-
-              <button
-                type="button"
-                onClick={() => setShowHint(!showHint)}
-                className="text-[11px] text-neutral-500 hover:text-neutral-900 underline underline-offset-2 cursor-pointer font-medium"
-              >
-                {showHint ? 'Hide Env Info' : 'Env Configuration'}
-              </button>
             </div>
 
             {/* Submit Button */}
@@ -194,32 +186,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
               )}
             </button>
           </form>
-
-          {/* Environment Variable Helper Callout */}
-          {showHint && (
-            <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/80 text-[11px] text-neutral-600 space-y-2 animate-fadeIn">
-              <div className="font-bold text-neutral-800 flex items-center justify-between">
-                <span>Firebase App Hosting Setup</span>
-                <button
-                  type="button"
-                  onClick={handleUseQuickDevFill}
-                  className="text-[10px] bg-white border border-neutral-300 hover:border-neutral-900 text-neutral-900 px-2 py-0.5 rounded font-mono font-semibold cursor-pointer"
-                >
-                  Autofill Default
-                </button>
-              </div>
-              <p className="text-neutral-500">
-                Configure your custom credentials via environment variables:
-              </p>
-              <div className="bg-white p-2 rounded border border-neutral-200 font-mono text-[10px] space-y-0.5 text-neutral-700">
-                <div>VITE_ADMIN_USERNAME=admin</div>
-                <div>VITE_ADMIN_PASSWORD=soule2026!</div>
-              </div>
-              <p className="text-[10px] text-neutral-400">
-                In App Hosting, declare these in <code className="text-neutral-700">apphosting.yaml</code> under <code className="text-neutral-700">env:</code> with <code className="text-neutral-700">availability: [BUILD]</code>.
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Footer info */}
