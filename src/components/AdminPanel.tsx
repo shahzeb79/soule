@@ -19,14 +19,23 @@ import {
   Image as ImageIcon,
   ExternalLink,
   Layers,
-  Sparkles
+  Sparkles,
+  LogOut,
+  ShieldCheck
 } from 'lucide-react';
+import { AdminLogin } from './AdminLogin';
+import {
+  isAdminAuthenticated,
+  logoutAdmin,
+  getActiveAdminUsername
+} from '../cms/adminAuth';
 
 interface AdminPanelProps {
   onBackToStore: () => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => isAdminAuthenticated());
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,8 +93,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (isAuthenticated) {
+      fetchProducts();
+    }
+  }, [isAuthenticated]);
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
@@ -284,6 +295,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
     return matchesGender && matchesSearch;
   });
 
+  if (!isAuthenticated) {
+    return (
+      <AdminLogin
+        onSuccess={() => {
+          setIsAuthenticated(true);
+        }}
+        onBackToStore={onBackToStore}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F4F4F6] text-[#121212] flex flex-col antialiased">
       {/* Hidden File Input for Storage Upload */}
@@ -318,11 +340,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-600 text-xs font-medium border border-neutral-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Admin: <strong className="text-neutral-900">{getActiveAdminUsername()}</strong></span>
+            </div>
+
             <button
               onClick={() => fetchProducts(true)}
               disabled={isLoading}
-              className="p-2 text-neutral-600 hover:text-black rounded-lg hover:bg-neutral-100 transition-colors"
+              className="p-2 text-neutral-600 hover:text-black rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer"
               title="Refresh from Firebase"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -333,6 +360,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
             >
               <Plus className="w-4 h-4 text-[#0CB581]" />
               <span>Add New Shoe</span>
+            </button>
+            <button
+              onClick={() => {
+                logoutAdmin();
+                setIsAuthenticated(false);
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-2 text-neutral-600 hover:text-red-600 hover:bg-red-50 rounded-xl text-xs font-semibold border border-neutral-200 hover:border-red-200 transition-colors cursor-pointer"
+              title="Log Out of Admin CMS"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Log Out</span>
             </button>
           </div>
         </div>
