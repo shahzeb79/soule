@@ -13,6 +13,13 @@ export interface CMSResponse<T> {
   };
 }
 
+export interface CategoryCounts {
+  all: number;
+  men: number;
+  women: number;
+  kids: number;
+}
+
 export interface EditorialStory {
   id: string;
   title: string;
@@ -48,6 +55,46 @@ class HeadlessCMSClient {
   private memoryCache: Product[] | null = null;
   private cacheTimestamp = 0;
   private CACHE_TTL_MS = 60 * 1000; // 1 minute in-memory cache
+  private listeners: Array<() => void> = [];
+
+  /**
+   * Subscribe to CMS changes (created, updated, deleted shoes)
+   */
+  subscribe(listener: () => void): () => void {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener);
+    };
+  }
+
+  /**
+   * Notify all listeners and dispatch window custom event
+   */
+  private notifyListeners() {
+    this.listeners.forEach((listener) => {
+      try {
+        listener();
+      } catch (err) {
+        console.error('HeadlessCMS listener error:', err);
+      }
+    });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('soule_products_updated'));
+    }
+  }
+
+  /**
+   * Fetches live product counts across all categories from Firebase Firestore
+   */
+  async getCategoryCounts(forceFresh = false): Promise<CategoryCounts> {
+    const { products } = await this.getRawProducts(forceFresh);
+    return {
+      all: products.length,
+      men: products.filter((p) => p.gender === 'men').length,
+      women: products.filter((p) => p.gender === 'women').length,
+      kids: products.filter((p) => p.gender === 'kids').length
+    };
+  }
 
   /**
    * Fetches raw products list: either from Firestore or fallback to PRODUCTS_DATA
@@ -115,6 +162,11 @@ class HeadlessCMSClient {
           this.memoryCache = firestoreProducts;
           this.cacheTimestamp = now;
           return { products: firestoreProducts, source: 'firebase-firestore-cms' };
+        } else {
+          // Both collections empty in Firestore: seed default catalog into shoes_data in the background
+          this.seedDemoProductsToFirestore().catch((err) => {
+            console.warn('Initial Firestore seed attempt skipped or failed:', err);
+          });
         }
       } catch (err) {
         console.warn('Firestore fetch failed, using fallback data:', err);
@@ -246,6 +298,7 @@ class HeadlessCMSClient {
     await setDoc(doc(db, 'shoes_data', shoeId), newProduct);
 
     this.memoryCache = null; // Invalidate cache immediately
+    this.notifyListeners();
     return { success: true, id: shoeId };
   }
 
@@ -262,6 +315,7 @@ class HeadlessCMSClient {
     await setDoc(doc(db, 'shoes_data', shoe.id), shoe, { merge: true });
 
     this.memoryCache = null; // Invalidate cache immediately
+    this.notifyListeners();
     return { success: true };
   }
 
@@ -287,11 +341,12 @@ class HeadlessCMSClient {
     await deleteDoc(doc(db, 'shoes_data', shoeId));
 
     this.memoryCache = null; // Invalidate cache immediately
+    this.notifyListeners();
     return { success: true };
   }
 
   /**
-   * Admin Helper: seeds local PRODUCTS_DATA into Firebase Firestore
+   * Admin Helper: seeds local PRODUCTS_DATA into Firebase Firestore shoes_data
    */
   async seedDemoProductsToFirestore(): Promise<{ count: number; success: boolean }> {
     if (!db) {
@@ -299,10 +354,12 @@ class HeadlessCMSClient {
     }
     let seeded = 0;
     for (const prod of PRODUCTS_DATA) {
+      await setDoc(doc(db, 'shoes_data', prod.id), prod, { merge: true });
       await setDoc(doc(db, 'products', prod.id), prod, { merge: true });
       seeded++;
     }
     this.memoryCache = null; // Invalidate cache
+    this.notifyListeners();
     return { count: seeded, success: true };
   }
 }

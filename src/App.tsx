@@ -12,7 +12,7 @@ import { SearchModal } from './components/SearchModal';
 import { TechnologySection } from './components/TechnologySection';
 import { Footer } from './components/Footer';
 import { Product, ProductColorway, Category, FilterState } from './types';
-import { headlessCMS } from './cms/headlessCms';
+import { headlessCMS, CategoryCounts } from './cms/headlessCms';
 import { Sparkles, RotateCcw } from 'lucide-react';
 import { AdminPanel } from './components/AdminPanel';
 
@@ -28,6 +28,12 @@ export function ShopApp() {
 
   const [currentCategory, setCurrentCategory] = useState<Category>('men'); // Defaults to men like on.com/en-ch/shop/men
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({
+    all: 0,
+    men: 0,
+    women: 0,
+    kids: 0
+  });
   const [totalCount, setTotalCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -103,7 +109,7 @@ export function ShopApp() {
     });
   };
 
-  // Load products from headless CMS
+  // Load products and category counts from headless CMS
   useEffect(() => {
     let isSubscribed = true;
     setIsLoading(true);
@@ -122,10 +128,37 @@ export function ShopApp() {
         if (isSubscribed) setIsLoading(false);
       });
 
+    headlessCMS
+      .getCategoryCounts(true)
+      .then((counts) => {
+        if (isSubscribed) {
+          setCategoryCounts(counts);
+        }
+      })
+      .catch((err) => {
+        console.warn('Error fetching category counts in App.tsx:', err);
+      });
+
     return () => {
       isSubscribed = false;
     };
   }, [filterState, isAdminView]);
+
+  // Listen for real-time updates when shoes are added, modified, or deleted in CMS
+  useEffect(() => {
+    const handleUpdate = () => {
+      headlessCMS.getProducts(filterState, true).then((res) => {
+        setProducts(res.data);
+        setTotalCount(res.meta.total);
+      });
+      headlessCMS.getCategoryCounts(true).then((counts) => {
+        setCategoryCounts(counts);
+      });
+    };
+
+    window.addEventListener('soule_products_updated', handleUpdate);
+    return () => window.removeEventListener('soule_products_updated', handleUpdate);
+  }, [filterState]);
 
   const handleOpenDetails = (product: Product, initialColorway?: ProductColorway) => {
     setSelectedProduct(product);
@@ -172,6 +205,7 @@ export function ShopApp() {
         category={currentCategory}
         onSelectCategory={handleSelectCategory}
         onOpenFlagship={handleOpenFlagship}
+        categoryCounts={categoryCounts}
       />
 
       {/* Sticky Filter & Sort Bar */}

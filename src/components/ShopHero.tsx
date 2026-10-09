@@ -1,23 +1,79 @@
-import React from 'react';
-import { Category, Product } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Category } from '../types';
 import { HERO_CAMPAIGN_IMG, PRODUCTS_DATA } from '../cms/productsData';
+import { headlessCMS, CategoryCounts } from '../cms/headlessCms';
 import { ArrowUpRight, Zap, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface ShopHeroProps {
   category: Category;
   onSelectCategory: (cat: Category) => void;
   onOpenFlagship: () => void;
+  categoryCounts?: CategoryCounts;
 }
 
 export const ShopHero: React.FC<ShopHeroProps> = ({
   category,
   onSelectCategory,
-  onOpenFlagship
+  onOpenFlagship,
+  categoryCounts: propCounts
 }) => {
-  const menCount = PRODUCTS_DATA.filter((p) => p.gender === 'men').length;
-  const womenCount = PRODUCTS_DATA.filter((p) => p.gender === 'women').length;
-  const kidsCount = PRODUCTS_DATA.filter((p) => p.gender === 'kids').length;
-  const totalCount = PRODUCTS_DATA.length;
+  const [counts, setCounts] = useState<CategoryCounts>(() => {
+    if (propCounts) return propCounts;
+    return {
+      all: PRODUCTS_DATA.length,
+      men: PRODUCTS_DATA.filter((p) => p.gender === 'men').length,
+      women: PRODUCTS_DATA.filter((p) => p.gender === 'women').length,
+      kids: PRODUCTS_DATA.filter((p) => p.gender === 'kids').length
+    };
+  });
+
+  // Keep in sync when parent passes new counts
+  useEffect(() => {
+    if (propCounts) {
+      setCounts(propCounts);
+    }
+  }, [propCounts]);
+
+  // Query live counts from Firebase and listen to CMS mutations in real-time
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncFirebaseCounts = async () => {
+      try {
+        const liveCounts = await headlessCMS.getCategoryCounts();
+        if (isMounted) {
+          setCounts(liveCounts);
+        }
+      } catch (err) {
+        console.warn('ShopHero: Failed to fetch category counts from Firebase:', err);
+      }
+    };
+
+    // Initial fetch from Firebase
+    syncFirebaseCounts();
+
+    // Subscribe to headlessCMS client listener
+    const unsubscribe = headlessCMS.subscribe(() => {
+      syncFirebaseCounts();
+    });
+
+    // Listen to custom window event broadcasted across the app
+    const handleUpdate = () => {
+      syncFirebaseCounts();
+    };
+    window.addEventListener('soule_products_updated', handleUpdate);
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+      window.removeEventListener('soule_products_updated', handleUpdate);
+    };
+  }, []);
+
+  const totalCount = counts.all;
+  const menCount = counts.men;
+  const womenCount = counts.women;
+  const kidsCount = counts.kids;
 
   const getTitles = () => {
     switch (category) {
@@ -52,6 +108,11 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Typography & Category Selector */}
           <div className="lg:col-span-7 space-y-5">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
+              <span>Zurich Biomechanics · 2026 Collection</span>
+            </div>
+
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#121212] leading-[1.1] max-w-xl">
               {title}
             </h1>

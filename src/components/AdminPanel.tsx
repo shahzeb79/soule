@@ -78,6 +78,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
   const [uploadingColorwayIndex, setUploadingColorwayIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedCwForUpload, setSelectedCwForUpload] = useState<number>(0);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
   const fetchProducts = async (forceFresh = true) => {
     setIsLoading(true);
@@ -89,6 +90,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
       showToast('error', `Failed to load products from Firebase: ${e.message || 'Error'}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSyncWithFirestore = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await headlessCMS.seedDemoProductsToFirestore();
+      showToast('success', `Synced ${res.count} products to Firebase Firestore collection "shoes_data"!`);
+      await fetchProducts(true);
+    } catch (err: any) {
+      console.error('Sync failed:', err);
+      showToast('error', `Firestore sync failed: ${err.message}`);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -353,6 +368,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBackToStore }) => {
               title="Refresh from Firebase"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={handleSyncWithFirestore}
+              disabled={isSyncing}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50"
+              title="Sync demo catalog to Firebase Firestore shoes_data"
+            >
+              <Database className={`w-3.5 h-3.5 text-emerald-600 ${isSyncing ? 'animate-pulse' : ''}`} />
+              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync Catalog to Firebase'}</span>
             </button>
             <button
               onClick={handleOpenAdd}
