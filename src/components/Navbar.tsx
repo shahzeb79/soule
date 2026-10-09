@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Search, ShoppingBag, Globe, Menu, X, ArrowRight } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { useCurrency } from '../context/CurrencyContext';
-import { Category, Currency } from '../types';
+import { Category } from '../types';
 import { SouleLogo } from './SouleLogo';
 
 interface NavbarProps {
@@ -21,11 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateToAdmin
 }) => {
   const { totalItemsCount, openCart } = useCart();
-  const { currency, setCurrency } = useCurrency();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
-
-  const currencies: Currency[] = ['CHF', 'EUR', 'USD', 'GBP'];
 
   const handleNavClick = (cat: Category) => {
     onSelectCategory(cat);
@@ -35,6 +30,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 transition-colors">
+      {/* Promotion Bar */}
+      <div className="bg-[#121212] text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
+        <span>Engineered in Zurich</span>
+        <span className="opacity-40">·</span>
+        <span>Free nationwide delivery in Pakistan on orders over Rs. 5,000</span>
+        <span className="opacity-40">·</span>
+        <span className="text-neutral-300 hidden sm:inline">Use code <strong className="text-white underline decoration-dotted">SOULE10</strong> for 10% off</span>
+      </div>
+
       {/* Main Navigation - 3-Zone Top Bar Contract */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Zone 1: Brand Wordmark */}
@@ -130,37 +134,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Currency Switcher */}
-          <div className="relative">
-            <button
-              onClick={() => setCurrencyDropdownOpen(!currencyDropdownOpen)}
-              className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-md hover:bg-neutral-100 transition-colors text-neutral-800 cursor-pointer"
-              aria-label="Change currency"
-            >
-              <Globe className="w-3.5 h-3.5 text-neutral-500" />
-              <span>{currency}</span>
-            </button>
-
-            {currencyDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-24 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 z-50">
-                {currencies.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => {
-                      setCurrency(c);
-                      setCurrencyDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-1.5 text-xs font-medium transition-colors ${
-                      currency === c
-                        ? 'bg-neutral-100 text-black font-semibold'
-                        : 'text-neutral-600 hover:bg-neutral-50'
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Store Currency Badge (PKR Store) */}
+          <div className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded bg-neutral-100 text-neutral-700">
+            <span>PKR</span>
           </div>
 
           {/* Persistent Bag Button with Tabular Badge */}

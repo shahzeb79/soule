@@ -43,7 +43,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     address: '',
     city: '',
     postalCode: '',
-    country: 'Switzerland',
+    country: 'Pakistan',
     shippingMethod: 'standard',
     paymentMethod: 'card',
     cardNumber: '',
@@ -61,19 +61,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   // Auto-fill demo details for rapid testing
   const handleFillDemoData = () => {
     setFormData({
-      email: 'alex.huber@zurich.run',
-      firstName: 'Alexandre',
-      lastName: 'Huber',
-      address: 'Gotthardstrasse 24',
-      city: 'Zurich',
-      postalCode: '8002',
-      country: 'Switzerland',
+      email: 'shahzeb.runner@gmail.com',
+      firstName: 'Shahzeb',
+      lastName: 'Khan',
+      address: 'House 42, Block L, Gulberg III',
+      city: 'Lahore',
+      postalCode: '54000',
+      country: 'Pakistan',
       shippingMethod: 'standard',
       paymentMethod: 'card',
       cardNumber: '4242 •••• •••• 4242',
       cardExpiry: '08/28',
       cardCvc: '884',
-      cardName: 'Alexandre Huber'
+      cardName: 'Shahzeb Khan'
     });
   };
 
@@ -94,14 +94,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     }, 800);
 
     setTimeout(() => {
-      setProcessingStep('Confirming order with Soule Zurich...');
+      setProcessingStep('Confirming order with Soule...');
     }, 1600);
 
     setTimeout(() => {
       const orderNumber = `SLE-${Math.floor(10000 + Math.random() * 90000)}`;
       const confirmation: OrderConfirmation = {
         orderNumber,
-        date: new Date().toLocaleDateString('en-CH', {
+        date: new Date().toLocaleDateString('en-PK', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
@@ -113,7 +113,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         total: totalCHF,
         currency,
         shippingDetails: { ...formData },
-        estimatedDelivery: '2 business days (Swiss Post Priority)'
+        estimatedDelivery: '2–4 business days (TCS / Leopard Express Delivery)'
       };
 
       setConfirmedOrder(confirmation);

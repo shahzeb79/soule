@@ -43,7 +43,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     return product.sizes.find((s) => s.inStock) || null;
   });
 
-  const [activeAngle, setActiveAngle] = useState<'side' | 'perspective' | 'top' | 'sole'>('side');
+  const [activeAngle, setActiveAngle] = useState<string>('side');
   const [isRotating, setIsRotating] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
@@ -51,16 +51,44 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [activeTab, setActiveTab] = useState<'tech' | 'specs' | 'reviews'>('tech');
   const [imageError, setImageError] = useState(false);
 
-  // Reset imageError when colorway changes
+  // Reset imageError and angle when colorway changes
   useEffect(() => {
     setImageError(false);
+    setActiveAngle('side');
   }, [selectedColorway.id]);
+
+  const angleDefinitions = [
+    { id: 'side', label: 'Side Profile', shortLabel: 'Side' },
+    { id: 'perspective', label: '3/4 Dynamic', shortLabel: '3/4 Dynamic' },
+    { id: 'top', label: 'Top Down', shortLabel: 'Top' },
+    { id: 'sole', label: 'Cloud Sole', shortLabel: 'Sole' },
+    { id: 'front', label: 'Front Toe', shortLabel: 'Front' },
+    { id: 'back', label: 'Heel Back', shortLabel: 'Heel' },
+  ];
+
+  const getAngleImageUrl = (ang: string): string | null => {
+    if (selectedColorway.angles && (selectedColorway.angles as any)[ang]) {
+      return (selectedColorway.angles as any)[ang] || null;
+    }
+    if (ang === 'side' && selectedColorway.image) {
+      return selectedColorway.image;
+    }
+    return null;
+  };
+
+  const currentAngleImageUrl = getAngleImageUrl(activeAngle);
+
+  // Available angles with images
+  const allAnglesList = angleDefinitions.filter(a => {
+    // Show if has image, or is one of core angles
+    return Boolean(getAngleImageUrl(a.id)) || ['side', 'perspective', 'top', 'sole'].includes(a.id);
+  });
 
   const handleAngleCycle = () => {
     setIsRotating(true);
-    const angles: Array<'side' | 'perspective' | 'top' | 'sole'> = ['side', 'perspective', 'top', 'sole'];
-    const nextIdx = (angles.indexOf(activeAngle) + 1) % angles.length;
-    setActiveAngle(angles[nextIdx]);
+    const availableAngleIds = allAnglesList.map((a) => a.id);
+    const nextIdx = (availableAngleIds.indexOf(activeAngle) + 1) % availableAngleIds.length;
+    setActiveAngle(availableAngleIds[nextIdx]);
     setTimeout(() => setIsRotating(false), 300);
   };
 
@@ -94,13 +122,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 max-h-[90vh] overflow-y-auto">
           {/* ==================================================== */}
-          {/* LEFT COLUMN: Interactive Footwear Gallery (7 cols) */}
+          {/* LEFT COLUMN: Interactive Multi-Angle Footwear Gallery (7 cols) */}
           {/* ==================================================== */}
-          <div className="lg:col-span-7 bg-[#F6F6F8] p-6 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-neutral-200">
+          <div className="lg:col-span-7 bg-[#F6F6F8] p-6 lg:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-neutral-200">
             {/* Top Bar inside gallery */}
             <div className="flex items-center justify-between text-xs text-neutral-500">
-              <span className="font-semibold uppercase tracking-wider text-neutral-600">
-                Zurich Lab · Prototype CAD
+              <span className="font-semibold uppercase tracking-wider text-neutral-600 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Multi-Angle Studio · {angleDefinitions.find(a => a.id === activeAngle)?.label || 'View'}</span>
               </span>
               <button
                 onClick={handleAngleCycle}
@@ -108,64 +137,120 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 title="Rotate View"
               >
                 <RotateCw className={`w-3.5 h-3.5 ${isRotating ? 'animate-spin' : ''}`} />
-                <span>360° Rotate Angle</span>
+                <span>Cycle Angles</span>
               </button>
             </div>
 
             {/* Main Stage Display */}
-            <div className="my-8 sm:my-12 relative aspect-[4/3] flex items-center justify-center">
+            <div className="my-6 sm:my-8 relative aspect-[4/3] flex items-center justify-center">
               <div
                 className={`w-full h-full flex items-center justify-center transition-all duration-300 ${
                   isRotating ? 'scale-95 opacity-80' : 'scale-100 opacity-100'
                 }`}
               >
-                {/* If selected colorway has a realistic image and angle is side */}
-                {selectedColorway.image && activeAngle === 'side' && !imageError ? (
+                {/* Check if current angle has an uploaded photo */}
+                {currentAngleImageUrl && !imageError ? (
                   <img
-                    src={selectedColorway.image}
-                    alt={`${product.name} - ${selectedColorway.name}`}
+                    key={`${selectedColorway.id}-${activeAngle}`}
+                    src={currentAngleImageUrl}
+                    alt={`${product.name} - ${selectedColorway.name} (${activeAngle} view)`}
                     referrerPolicy="no-referrer"
                     onError={() => setImageError(true)}
-                    className="w-full h-full object-contain filter drop-shadow-xl"
+                    className="w-full h-full object-contain filter drop-shadow-xl animate-fadeIn"
                   />
+                ) : selectedColorway.image && !imageError ? (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <img
+                      src={selectedColorway.image}
+                      alt={`${product.name} - ${selectedColorway.name}`}
+                      referrerPolicy="no-referrer"
+                      onError={() => setImageError(true)}
+                      className="w-full h-full object-contain filter drop-shadow-xl"
+                    />
+                    {activeAngle !== 'side' && (
+                      <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 text-white rounded text-[10px] font-semibold backdrop-blur-xs">
+                        Viewing Primary Angle
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <ShoeGraphic
                     primaryColor={selectedColorway.primaryColorHex}
                     accentColor={selectedColorway.accentColorHex}
-                    angle={activeAngle}
+                    angle={(activeAngle as any) || 'side'}
                     className="w-full h-full filter drop-shadow-lg"
                   />
                 )}
               </div>
             </div>
 
-            {/* Angle Selectors & Gallery Thumbs */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-neutral-200/60">
-              <div className="flex items-center gap-2">
-                {[
-                  { id: 'side', label: 'Side Profile' },
-                  { id: 'perspective', label: '3/4 Dynamic' },
-                  { id: 'top', label: 'Top Down' },
-                  { id: 'sole', label: 'Cloud Sole' }
-                ].map((ang) => (
+            {/* Multi-Angle Interactive Thumbnail Ribbon & Angle Buttons */}
+            <div className="space-y-3 pt-3 border-t border-neutral-200/70">
+              {/* Thumbnail Strip for Multi-Angle Images */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider shrink-0 mr-1">
+                  Angles:
+                </span>
+                {allAnglesList.map((ang) => {
+                  const imgUrl = getAngleImageUrl(ang.id);
+                  const isSelected = activeAngle === ang.id;
+                  return (
+                    <button
+                      key={ang.id}
+                      onClick={() => setActiveAngle(ang.id)}
+                      className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+                        isSelected
+                          ? 'bg-neutral-900 text-white border-black shadow-xs ring-2 ring-black/20'
+                          : 'bg-white text-neutral-700 border-neutral-200 hover:border-black hover:bg-neutral-50'
+                      }`}
+                      title={ang.label}
+                    >
+                      {/* Mini Thumbnail */}
+                      <div className="w-6 h-6 rounded bg-neutral-100 border border-neutral-200 overflow-hidden flex items-center justify-center shrink-0">
+                        {imgUrl ? (
+                          <img
+                            src={imgUrl}
+                            alt={ang.label}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-[8px] font-bold text-neutral-400">CAD</span>
+                        )}
+                      </div>
+                      <span>{ang.shortLabel}</span>
+                      {imgUrl && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Photo available" />
+                      )}
+                    </button>
+                  );
+                })}
+
+                {/* Additional gallery images if present */}
+                {selectedColorway.additionalImages?.map((extraImg, idx) => (
                   <button
-                    key={ang.id}
-                    onClick={() => setActiveAngle(ang.id as any)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      activeAngle === ang.id
-                        ? 'bg-black text-white shadow-xs'
-                        : 'bg-white text-neutral-600 border border-neutral-200 hover:border-black'
+                    key={`extra-${idx}`}
+                    onClick={() => setActiveAngle(`extra-${idx}`)}
+                    className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+                      activeAngle === `extra-${idx}`
+                        ? 'bg-neutral-900 text-white border-black shadow-xs ring-2 ring-black/20'
+                        : 'bg-white text-neutral-700 border-neutral-200 hover:border-black hover:bg-neutral-50'
                     }`}
                   >
-                    {ang.label}
+                    <div className="w-6 h-6 rounded bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0">
+                      <img src={extraImg} alt={`Angle ${idx + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                    <span>Angle {idx + 1}</span>
                   </button>
                 ))}
               </div>
 
               {/* Sustainability Callout */}
-              <div className="flex items-center gap-1.5 text-xs text-neutral-600">
-                <Leaf className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="font-medium">{product.sustainability.recycledContent}</span>
+              <div className="flex items-center justify-between text-xs text-neutral-600">
+                <div className="flex items-center gap-1.5">
+                  <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="font-medium">{product.sustainability.recycledContent}</span>
+                </div>
+                <span className="text-[11px] text-neutral-400">High-Resolution Angles</span>
               </div>
             </div>
           </div>
@@ -197,7 +282,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     {formatPrice(product.priceCHF)}
                   </span>
                   <span className="text-xs text-neutral-500">
-                    VAT incl. · Free Swiss delivery
+                    All taxes incl. · Free nationwide delivery in Pakistan on orders over Rs. 5,000
                   </span>
                 </div>
               </div>

@@ -43,7 +43,19 @@ export const PRODUCTS_DATA: Product[] = [
     rating: 4.9,
     reviewCount: 312,
     colorways: [
-      { id: 'cr-white-slate', name: 'Chalk White / Slate Grey', primaryColorHex: '#E2E8F0', accentColorHex: '#1E293B', image: productCloudrushImg },
+      {
+        id: 'cr-white-slate',
+        name: 'Chalk White / Slate Grey',
+        primaryColorHex: '#E2E8F0',
+        accentColorHex: '#1E293B',
+        image: productCloudrushImg,
+        angles: {
+          side: productCloudrushImg,
+          perspective: heroCampaignImg,
+          top: productAeroflyImg,
+          sole: techSoleDetailImg
+        }
+      },
       { id: 'cr-all-black', name: 'Monolith Phantom Black', primaryColorHex: '#1E293B', accentColorHex: '#0F172A', image: '' },
       { id: 'cr-alpine-ice', name: 'Alpine Ice / Glacier Cyan', primaryColorHex: '#E0F2FE', accentColorHex: '#0284C7', image: '' }
     ],

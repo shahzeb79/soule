@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, Product, ProductColorway, ProductSize } from '../types';
+import { getNumericPKR } from './CurrencyContext';
 
 interface CartContextType {
   items: CartItem[];
@@ -23,8 +24,8 @@ interface CartContextType {
 }
 
 const STORAGE_KEY = 'soule_persistent_cart_v1';
-const FREE_SHIPPING_THRESHOLD = 150.0;
-const STANDARD_SHIPPING_FEE = 9.90;
+const FREE_SHIPPING_THRESHOLD = 5000; // Free delivery in Pakistan above Rs. 5,000
+const STANDARD_SHIPPING_FEE = 250;    // Standard delivery Rs. 250
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -133,7 +134,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotalCHF = items.reduce(
-    (sum, item) => sum + item.product.priceCHF * item.quantity,
+    (sum, item) => sum + getNumericPKR(item.product.priceCHF) * item.quantity,
     0
   );
 

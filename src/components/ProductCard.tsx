@@ -20,12 +20,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [hoveredColorway, setHoveredColorway] = useState<ProductColorway | null>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [recentlyAddedSize, setRecentlyAddedSize] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
 
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
 
   const activeColorway = hoveredColorway || selectedColorway;
+
+  const primaryImage = activeColorway.angles?.side || activeColorway.image;
+  const alternateAngleImage =
+    activeColorway.angles?.perspective ||
+    activeColorway.angles?.top ||
+    activeColorway.angles?.sole ||
+    activeColorway.angles?.front;
+
+  const hasMultipleAngles = Boolean(alternateAngleImage);
+  const displayImage = isHovered && alternateAngleImage ? alternateAngleImage : primaryImage;
 
   // Reset image error state when active colorway changes
   useEffect(() => {
@@ -47,6 +58,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       onClick={() => onOpenDetails(product, activeColorway)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className="group relative flex flex-col bg-white rounded-xl overflow-hidden border border-neutral-200/70 hover:border-neutral-300 transition-all duration-300 cursor-pointer hover:shadow-lg"
     >
       {/* Visual Container (65-70% height with clean neutral background) */}
@@ -55,6 +68,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {product.badge && (
           <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-600 bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded shadow-2xs z-10">
             {product.badge}
+          </span>
+        )}
+
+        {/* Multi-angle indicator pill */}
+        {hasMultipleAngles && (
+          <span className="absolute bottom-3 left-3 text-[9px] font-bold text-neutral-600 bg-white/80 backdrop-blur-xs px-2 py-0.5 rounded shadow-2xs z-10 group-hover:bg-black group-hover:text-white transition-colors">
+            {isHovered ? 'Angle 2 Preview' : 'Multi-Angle'}
           </span>
         )}
 
@@ -72,13 +92,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Shoe Image / Graphic */}
         <div className="w-full h-full flex items-center justify-center relative transition-transform duration-500 ease-out group-hover:scale-[1.04]">
-          {activeColorway.image && !imageFailed ? (
+          {displayImage && !imageFailed ? (
             <img
-              src={activeColorway.image}
+              src={displayImage}
               alt={`${product.name} - ${activeColorway.name}`}
               referrerPolicy="no-referrer"
               onError={() => setImageFailed(true)}
-              className="w-full h-full object-contain filter drop-shadow-md"
+              className="w-full h-full object-contain filter drop-shadow-md transition-all duration-300"
             />
           ) : (
             <ShoeGraphic

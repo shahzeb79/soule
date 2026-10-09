@@ -16,11 +16,15 @@ export interface ProductColorway {
   accentColorHex: string;
   image: string;
   angles?: {
-    side: string;
-    perspective: string;
-    top: string;
-    sole: string;
+    side?: string;
+    perspective?: string;
+    top?: string;
+    sole?: string;
+    front?: string;
+    back?: string;
+    [key: string]: string | undefined;
   };
+  additionalImages?: string[];
 }
 
 export interface ProductSize {
@@ -83,7 +87,7 @@ export interface FilterState {
   inStockOnly: boolean;
 }
 
-export type Currency = 'CHF' | 'EUR' | 'USD' | 'GBP';
+export type Currency = 'PKR';
 
 export interface CheckoutFormData {
   email: string;

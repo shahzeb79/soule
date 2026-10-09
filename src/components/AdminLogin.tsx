@@ -49,12 +49,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
     }, 250);
   };
 
-  const handleUseQuickDevFill = () => {
-    setUsername(getExpectedAdminUsername());
-    setPassword(getExpectedAdminPassword());
-    setError(null);
-  };
-
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center items-center px-4 py-12 selection:bg-[#0CB581]/20">
       {/* Top back navigation */}

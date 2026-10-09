@@ -125,7 +125,7 @@ class HeadlessCMSClient {
               gender: data.gender || 'men',
               activity: data.activity || 'Road Running',
               cushioning: data.cushioning || 'Responsive',
-              priceCHF: Number(data.priceCHF || data.price || 199.90),
+              priceCHF: Number(data.pricePKR || data.priceCHF || data.price || 18500),
               isNew: Boolean(data.isNew),
               isBestSeller: Boolean(data.isBestSeller),
               badge: data.badge || '',
