@@ -35,15 +35,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 transition-colors">
-      {/* Promotion Bar */}
-      <div className="bg-[#121212] text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
-        <span>Engineered in Zurich</span>
-        <span className="opacity-40">·</span>
-        <span>Free carbon-neutral shipping on orders over CHF 150</span>
-        <span className="opacity-40">·</span>
-        <span className="text-neutral-300 hidden sm:inline">Use code <strong className="text-white underline decoration-dotted">SOULE10</strong> for 10% off</span>
-      </div>
-
       {/* Main Navigation - 3-Zone Top Bar Contract */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Zone 1: Brand Wordmark */}
