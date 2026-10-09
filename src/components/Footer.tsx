@@ -6,9 +6,16 @@ import { SouleLogo } from './SouleLogo';
 interface FooterProps {
   onSelectCategory: (c: Category) => void;
   onNavigateToAdmin?: () => void;
+  onOpenAboutUs?: () => void;
+  onOpenContact?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onNavigateToAdmin }) => {
+export const Footer: React.FC<FooterProps> = ({
+  onSelectCategory,
+  onNavigateToAdmin,
+  onOpenAboutUs,
+  onOpenContact
+}) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -109,14 +116,29 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onNavigateToAd
 
           <div className="space-y-3">
             <h4 className="font-bold uppercase tracking-wider text-neutral-900 text-[11px]">
-              Swiss Customer Care
+              About & Contact
             </h4>
             <ul className="space-y-2 text-neutral-600">
-              <li>30-Day Free Trial</li>
-              <li>Free Returns & Exchanges</li>
-              <li>Shoe Size & Fit Finder</li>
-              <li>Order Status Tracking</li>
-              <li>Contact Zurich Support</li>
+              <li>
+                <button
+                  type="button"
+                  onClick={onOpenAboutUs}
+                  className="hover:text-black font-semibold text-neutral-700 transition-colors cursor-pointer text-left flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0CB581]" />
+                  <span>About Us</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={onOpenContact}
+                  className="hover:text-black font-semibold text-neutral-700 transition-colors cursor-pointer text-left flex items-center gap-1.5"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0CB581]" />
+                  <span>Contact Form</span>
+                </button>
+              </li>
             </ul>
           </div>
         </div>

@@ -11,6 +11,8 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { SearchModal } from './components/SearchModal';
 import { TechnologySection } from './components/TechnologySection';
 import { Footer } from './components/Footer';
+import { AboutUsModal } from './components/AboutUsModal';
+import { ContactModal } from './components/ContactModal';
 import { Product, ProductColorway, Category, FilterState } from './types';
 import { headlessCMS, CategoryCounts } from './cms/headlessCms';
 import { Sparkles, RotateCcw } from 'lucide-react';
@@ -55,6 +57,8 @@ export function ShopApp() {
   const [selectedInitialColorway, setSelectedInitialColorway] = useState<ProductColorway | undefined>(undefined);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isAboutUsOpen, setIsAboutUsOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
   // Listen for browser back/forward and URL changes
   useEffect(() => {
@@ -64,8 +68,15 @@ export function ShopApp() {
         window.location.search.includes('view=admin') ||
         window.location.hash === '#admin';
       setIsAdminView(isNowAdmin);
+
+      if (window.location.hash === '#about') {
+        setIsAboutUsOpen(true);
+      } else if (window.location.hash === '#contact') {
+        setIsContactOpen(true);
+      }
     };
 
+    handleLocationChange();
     window.addEventListener('popstate', handleLocationChange);
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
@@ -267,6 +278,24 @@ export function ShopApp() {
       <Footer
         onSelectCategory={handleSelectCategory}
         onNavigateToAdmin={() => navigateTo('/admin')}
+        onOpenAboutUs={() => setIsAboutUsOpen(true)}
+        onOpenContact={() => setIsContactOpen(true)}
+      />
+
+      {/* About Us Dialog Modal */}
+      <AboutUsModal
+        isOpen={isAboutUsOpen}
+        onClose={() => setIsAboutUsOpen(false)}
+        onOpenContact={() => {
+          setIsAboutUsOpen(false);
+          setIsContactOpen(true);
+        }}
+      />
+
+      {/* Contact Form Dialog Modal */}
+      <ContactModal
+        isOpen={isContactOpen}
+        onClose={() => setIsContactOpen(false)}
       />
 
       {/* Product Detail Modal (High-fidelity Micro-Interactions) */}

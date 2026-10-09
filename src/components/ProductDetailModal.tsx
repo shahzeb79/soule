@@ -67,6 +67,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   ];
 
   const getAngleImageUrl = (ang: string): string | null => {
+    if (ang.startsWith('extra-')) {
+      const idx = parseInt(ang.replace('extra-', ''), 10);
+      if (selectedColorway.additionalImages && selectedColorway.additionalImages[idx]) {
+        return selectedColorway.additionalImages[idx];
+      }
+    }
     if (selectedColorway.angles && (selectedColorway.angles as any)[ang]) {
       return (selectedColorway.angles as any)[ang] || null;
     }
