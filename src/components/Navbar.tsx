@@ -10,13 +10,15 @@ interface NavbarProps {
   onSelectCategory: (category: Category) => void;
   onOpenSearch: () => void;
   onNavigateToTech?: () => void;
+  onNavigateToAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentCategory,
   onSelectCategory,
   onOpenSearch,
-  onNavigateToTech
+  onNavigateToTech,
+  onNavigateToAdmin
 }) => {
   const { totalItemsCount, openCart } = useCart();
   const { currency, setCurrency } = useCurrency();
@@ -33,6 +35,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 transition-colors">
+      {/* Promotion Bar */}
+      <div className="bg-[#121212] text-white text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
+        <span>Engineered in Zurich</span>
+        <span className="opacity-40">·</span>
+        <span>Free carbon-neutral shipping on orders over CHF 150</span>
+        <span className="opacity-40">·</span>
+        <span className="text-neutral-300 hidden sm:inline">Use code <strong className="text-white underline decoration-dotted">SOULE10</strong> for 10% off</span>
+      </div>
+
       {/* Main Navigation - 3-Zone Top Bar Contract */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Zone 1: Brand Wordmark */}
@@ -115,6 +126,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Search className="w-4 h-4" />
             <span className="hidden lg:inline text-neutral-500">Search</span>
           </button>
+
+          {/* Admin CMS Button */}
+          {onNavigateToAdmin && (
+            <button
+              onClick={onNavigateToAdmin}
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg bg-neutral-100 hover:bg-black hover:text-white transition-all text-neutral-800 cursor-pointer"
+              title="Open CMS Admin Panel (/admin)"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0CB581]" />
+              <span>Admin</span>
+            </button>
+          )}
 
           {/* Currency Switcher */}
           <div className="relative">

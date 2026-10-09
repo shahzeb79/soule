@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // shoes_product folder for shoe images uploaded by admin
+    match /shoes_product/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    // Default match
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -5,9 +5,10 @@ import { SouleLogo } from './SouleLogo';
 
 interface FooterProps {
   onSelectCategory: (c: Category) => void;
+  onNavigateToAdmin?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
+export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onNavigateToAdmin }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -128,6 +129,15 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory }) => {
           </div>
 
           <div className="flex items-center gap-6">
+            {onNavigateToAdmin && (
+              <button
+                onClick={onNavigateToAdmin}
+                className="hover:text-emerald-600 font-semibold text-neutral-600 transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0CB581]" />
+                <span>Admin CMS (/admin)</span>
+              </button>
+            )}
             <span>Privacy Policy</span>
             <span>Terms of Sale</span>
             <span>Cookie Settings</span>

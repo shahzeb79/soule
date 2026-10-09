@@ -1,7 +1,8 @@
 import { PRODUCTS_DATA, HERO_CAMPAIGN_IMG, TECH_SOLE_DETAIL_IMG } from './productsData';
 import { Product, FilterState } from '../types';
 import { db, isFirebaseConfigured } from './firebaseClient';
-import { collection, getDocs, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { deleteShoeImageByUrl } from './storageService';
 
 export interface CMSResponse<T> {
   data: T;
@@ -51,9 +52,9 @@ class HeadlessCMSClient {
   /**
    * Fetches raw products list: either from Firestore or fallback to PRODUCTS_DATA
    */
-  async getRawProducts(): Promise<{ products: Product[]; source: 'firebase-firestore-cms' | 'local-edge-cache' }> {
+  async getRawProducts(forceFresh = false): Promise<{ products: Product[]; source: 'firebase-firestore-cms' | 'local-edge-cache' }> {
     const now = Date.now();
-    if (this.memoryCache && now - this.cacheTimestamp < this.CACHE_TTL_MS) {
+    if (!forceFresh && this.memoryCache && now - this.cacheTimestamp < this.CACHE_TTL_MS) {
       return { products: this.memoryCache, source: isFirebaseConfigured ? 'firebase-firestore-cms' : 'local-edge-cache' };
     }
 
@@ -126,9 +127,9 @@ class HeadlessCMSClient {
     return { products: PRODUCTS_DATA, source: 'local-edge-cache' };
   }
 
-  async getProducts(filters?: Partial<FilterState>): Promise<CMSResponse<Product[]>> {
+  async getProducts(filters?: Partial<FilterState>, forceFresh = false): Promise<CMSResponse<Product[]>> {
     const startTime = performance.now();
-    const { products: allProducts, source } = await this.getRawProducts();
+    const { products: allProducts, source } = await this.getRawProducts(forceFresh);
 
     let list = [...allProducts];
 
@@ -229,6 +230,64 @@ class HeadlessCMSClient {
 
   async getStories(): Promise<EditorialStory[]> {
     return EDITORIAL_STORIES;
+  }
+
+  /**
+   * Admin: Add new shoe to Firestore collection 'shoes_data'
+   */
+  async createShoe(shoe: Product): Promise<{ success: boolean; id: string }> {
+    const shoeId = shoe.id || `${shoe.gender}-${shoe.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}`;
+    const newProduct: Product = { ...shoe, id: shoeId };
+
+    if (!db) {
+      throw new Error('Firebase Firestore is not initialized. Please verify configuration.');
+    }
+
+    await setDoc(doc(db, 'shoes_data', shoeId), newProduct);
+
+    this.memoryCache = null; // Invalidate cache immediately
+    return { success: true, id: shoeId };
+  }
+
+  /**
+   * Admin: Update existing shoe in Firestore collection 'shoes_data'
+   */
+  async updateShoe(shoe: Product): Promise<{ success: boolean }> {
+    if (!shoe.id) throw new Error('Shoe ID is required for update');
+
+    if (!db) {
+      throw new Error('Firebase Firestore is not initialized. Please verify configuration.');
+    }
+
+    await setDoc(doc(db, 'shoes_data', shoe.id), shoe, { merge: true });
+
+    this.memoryCache = null; // Invalidate cache immediately
+    return { success: true };
+  }
+
+  /**
+   * Admin: Delete a shoe from Firestore collection 'shoes_data' and delete its uploaded images from Storage
+   */
+  async deleteShoe(shoeId: string, imageUrlsToDelete: string[] = []): Promise<{ success: boolean }> {
+    // Delete associated images from Firebase Storage
+    for (const url of imageUrlsToDelete) {
+      if (url) {
+        try {
+          await deleteShoeImageByUrl(url);
+        } catch (e) {
+          console.warn('Could not delete image on shoe deletion:', e);
+        }
+      }
+    }
+
+    if (!db) {
+      throw new Error('Firebase Firestore is not initialized. Please verify configuration.');
+    }
+
+    await deleteDoc(doc(db, 'shoes_data', shoeId));
+
+    this.memoryCache = null; // Invalidate cache immediately
+    return { success: true };
   }
 
   /**

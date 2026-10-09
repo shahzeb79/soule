@@ -14,8 +14,18 @@ import { Footer } from './components/Footer';
 import { Product, ProductColorway, Category, FilterState } from './types';
 import { headlessCMS } from './cms/headlessCms';
 import { Sparkles, RotateCcw } from 'lucide-react';
+import { AdminPanel } from './components/AdminPanel';
 
 export function ShopApp() {
+  const [isAdminView, setIsAdminView] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.location.pathname.startsWith('/admin') ||
+      window.location.search.includes('view=admin') ||
+      window.location.hash === '#admin'
+    );
+  });
+
   const [currentCategory, setCurrentCategory] = useState<Category>('men'); // Defaults to men like on.com/en-ch/shop/men
   const [products, setProducts] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -39,6 +49,32 @@ export function ShopApp() {
   const [selectedInitialColorway, setSelectedInitialColorway] = useState<ProductColorway | undefined>(undefined);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  // Listen for browser back/forward and URL changes
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const isNowAdmin =
+        window.location.pathname.startsWith('/admin') ||
+        window.location.search.includes('view=admin') ||
+        window.location.hash === '#admin';
+      setIsAdminView(isNowAdmin);
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    if (path.startsWith('/admin')) {
+      window.history.pushState({}, '', '/admin');
+      setIsAdminView(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.history.pushState({}, '', '/');
+      setIsAdminView(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Sync category change with filterState
   const handleSelectCategory = (cat: Category) => {
@@ -73,7 +109,7 @@ export function ShopApp() {
     setIsLoading(true);
 
     headlessCMS
-      .getProducts(filterState)
+      .getProducts(filterState, true)
       .then((res) => {
         if (isSubscribed) {
           setProducts(res.data);
@@ -89,7 +125,7 @@ export function ShopApp() {
     return () => {
       isSubscribed = false;
     };
-  }, [filterState]);
+  }, [filterState, isAdminView]);
 
   const handleOpenDetails = (product: Product, initialColorway?: ProductColorway) => {
     setSelectedProduct(product);
@@ -114,6 +150,10 @@ export function ShopApp() {
     return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8';
   };
 
+  if (isAdminView) {
+    return <AdminPanel onBackToStore={() => navigateTo('/')} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#121212]">
       {/* Global Navigation Bar */}
@@ -124,6 +164,7 @@ export function ShopApp() {
         onNavigateToTech={() => {
           document.getElementById('innovation')?.scrollIntoView({ behavior: 'smooth' });
         }}
+        onNavigateToAdmin={() => navigateTo('/admin')}
       />
 
       {/* Editorial Category Showcase Banner */}
@@ -189,7 +230,10 @@ export function ShopApp() {
       <TechnologySection onExploreFootwear={scrollToFootwear} />
 
       {/* Minimalist Swiss Footer */}
-      <Footer onSelectCategory={handleSelectCategory} />
+      <Footer
+        onSelectCategory={handleSelectCategory}
+        onNavigateToAdmin={() => navigateTo('/admin')}
+      />
 
       {/* Product Detail Modal (High-fidelity Micro-Interactions) */}
       <ProductDetailModal
