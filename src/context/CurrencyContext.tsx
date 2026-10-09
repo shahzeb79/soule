@@ -10,17 +10,19 @@ interface CurrencyContextType {
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
-export const formatPKR = (amount: number): string => {
-  if (amount === undefined || amount === null || isNaN(amount)) return 'Rs. 0';
-  const num = Number(amount);
+export const formatPKR = (amount: number | string | undefined | null): string => {
+  if (amount === undefined || amount === null) return 'Rs. 0';
+  const num = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+  if (isNaN(num)) return 'Rs. 0';
   // Normalize legacy demo prices if under 500 to realistic Pakistani Rupee equivalent
   const pkrValue = num > 0 && num < 500 ? Math.round(num * 100) : Math.round(num);
   return `Rs. ${pkrValue.toLocaleString('en-PK')}`;
 };
 
-export const getNumericPKR = (amount: number): number => {
-  if (!amount && amount !== 0) return 0;
-  const num = Number(amount);
+export const getNumericPKR = (amount: number | string | undefined | null): number => {
+  if (amount === undefined || amount === null) return 0;
+  const num = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+  if (isNaN(num)) return 0;
   return num > 0 && num < 500 ? Math.round(num * 100) : Math.round(num);
 };
 

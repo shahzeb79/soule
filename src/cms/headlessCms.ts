@@ -3,6 +3,7 @@ import { Product, FilterState } from '../types';
 import { db, isFirebaseConfigured } from './firebaseClient';
 import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteShoeImageByUrl } from './storageService';
+import { getNumericPKR } from '../context/CurrencyContext';
 
 export interface CMSResponse<T> {
   data: T;
@@ -117,6 +118,8 @@ class HeadlessCMSClient {
           const firestoreProducts: Product[] = [];
           querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
+            const rawPrice = (data as any).pricePKR ?? (data as any).priceCHF ?? (data as any).price ?? 18500;
+            const pkrPrice = getNumericPKR(rawPrice);
             firestoreProducts.push({
               id: docSnap.id,
               slug: data.slug || docSnap.id,
@@ -125,7 +128,7 @@ class HeadlessCMSClient {
               gender: data.gender || 'men',
               activity: data.activity || 'Road Running',
               cushioning: data.cushioning || 'Responsive',
-              priceCHF: Number(data.pricePKR || data.priceCHF || data.price || 18500),
+              priceCHF: pkrPrice,
               isNew: Boolean(data.isNew),
               isBestSeller: Boolean(data.isBestSeller),
               badge: data.badge || '',
@@ -173,10 +176,14 @@ class HeadlessCMSClient {
       }
     }
 
-    // Default fallback to bundled catalog
-    this.memoryCache = PRODUCTS_DATA;
+    // Default fallback to bundled catalog with normalized PKR prices
+    const normalizedFallback = PRODUCTS_DATA.map((p) => ({
+      ...p,
+      priceCHF: getNumericPKR(p.priceCHF)
+    }));
+    this.memoryCache = normalizedFallback;
     this.cacheTimestamp = now;
-    return { products: PRODUCTS_DATA, source: 'local-edge-cache' };
+    return { products: normalizedFallback, source: 'local-edge-cache' };
   }
 
   async getProducts(filters?: Partial<FilterState>, forceFresh = false): Promise<CMSResponse<Product[]>> {
@@ -201,6 +208,17 @@ class HeadlessCMSClient {
         list = list.filter((p) => filters.cushioning?.includes(p.cushioning));
       }
 
+      // Price Range filter (PKR)
+      if (filters.priceRange && filters.priceRange !== 'all') {
+        list = list.filter((p) => {
+          const price = getNumericPKR(p.priceCHF);
+          if (filters.priceRange === 'under-15000') return price < 15000;
+          if (filters.priceRange === '15000-22000') return price >= 15000 && price <= 22000;
+          if (filters.priceRange === 'above-22000') return price > 22000;
+          return true;
+        });
+      }
+
       // In stock only
       if (filters.inStockOnly) {
         list = list.filter((p) => p.sizes.some((s) => s.inStock));
@@ -219,17 +237,17 @@ class HeadlessCMSClient {
         );
       }
 
-      // Sort
+      // Sort based on PKR price and other attributes
       if (filters.sort) {
         switch (filters.sort) {
           case 'price-asc':
-            list.sort((a, b) => a.priceCHF - b.priceCHF);
+            list.sort((a, b) => getNumericPKR(a.priceCHF) - getNumericPKR(b.priceCHF));
             break;
           case 'price-desc':
-            list.sort((a, b) => b.priceCHF - a.priceCHF);
+            list.sort((a, b) => getNumericPKR(b.priceCHF) - getNumericPKR(a.priceCHF));
             break;
           case 'rating':
-            list.sort((a, b) => b.rating - a.rating);
+            list.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
             break;
           case 'newest':
             list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
@@ -265,19 +283,26 @@ class HeadlessCMSClient {
         }
         if (docSnap.exists()) {
           const data = docSnap.data();
-          return { id: docSnap.id, ...data } as Product;
+          const rawPrice = (data as any).pricePKR ?? (data as any).priceCHF ?? (data as any).price ?? 18500;
+          return {
+            id: docSnap.id,
+            ...data,
+            priceCHF: getNumericPKR(rawPrice)
+          } as Product;
         }
       } catch (e) {
         console.warn('Firestore getProductById fallback:', e);
       }
     }
     const { products } = await this.getRawProducts();
-    return products.find((p) => p.id === id) || null;
+    const found = products.find((p) => p.id === id);
+    return found ? { ...found, priceCHF: getNumericPKR(found.priceCHF) } : null;
   }
 
   async getProductBySlug(slug: string): Promise<Product | null> {
     const { products } = await this.getRawProducts();
-    return products.find((p) => p.slug === slug) || null;
+    const found = products.find((p) => p.slug === slug);
+    return found ? { ...found, priceCHF: getNumericPKR(found.priceCHF) } : null;
   }
 
   async getStories(): Promise<EditorialStory[]> {
@@ -289,7 +314,13 @@ class HeadlessCMSClient {
    */
   async createShoe(shoe: Product): Promise<{ success: boolean; id: string }> {
     const shoeId = shoe.id || `${shoe.gender}-${shoe.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now()}`;
-    const newProduct: Product = { ...shoe, id: shoeId };
+    const pkrPrice = getNumericPKR(shoe.priceCHF);
+    const newProduct: Product & { pricePKR: number } = {
+      ...shoe,
+      id: shoeId,
+      priceCHF: pkrPrice,
+      pricePKR: pkrPrice
+    };
 
     if (!db) {
       throw new Error('Firebase Firestore is not initialized. Please verify configuration.');
@@ -312,7 +343,14 @@ class HeadlessCMSClient {
       throw new Error('Firebase Firestore is not initialized. Please verify configuration.');
     }
 
-    await setDoc(doc(db, 'shoes_data', shoe.id), shoe, { merge: true });
+    const pkrPrice = getNumericPKR(shoe.priceCHF);
+    const updatedProduct = {
+      ...shoe,
+      priceCHF: pkrPrice,
+      pricePKR: pkrPrice
+    };
+
+    await setDoc(doc(db, 'shoes_data', shoe.id), updatedProduct, { merge: true });
 
     this.memoryCache = null; // Invalidate cache immediately
     this.notifyListeners();
@@ -354,8 +392,14 @@ class HeadlessCMSClient {
     }
     let seeded = 0;
     for (const prod of PRODUCTS_DATA) {
-      await setDoc(doc(db, 'shoes_data', prod.id), prod, { merge: true });
-      await setDoc(doc(db, 'products', prod.id), prod, { merge: true });
+      const pkrPrice = getNumericPKR(prod.priceCHF);
+      const normalizedProd = {
+        ...prod,
+        priceCHF: pkrPrice,
+        pricePKR: pkrPrice
+      };
+      await setDoc(doc(db, 'shoes_data', prod.id), normalizedProd, { merge: true });
+      await setDoc(doc(db, 'products', prod.id), normalizedProd, { merge: true });
       seeded++;
     }
     this.memoryCache = null; // Invalidate cache

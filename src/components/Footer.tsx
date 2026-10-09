@@ -146,8 +146,8 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-500 text-[11px]">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-neutral-900">soule AG</span>
-            <span>· Förrlibuckstrasse 190, 8005 Zürich, Switzerland</span>
+            <span className="font-bold text-neutral-900">soule Ltd</span>
+            <span>· Main pwd road, PWD, Islamabad, Pakistan</span>
           </div>
 
           <div className="flex items-center gap-6">

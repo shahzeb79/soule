@@ -114,6 +114,7 @@ export function ShopApp() {
       category: currentCategory,
       activity: [],
       cushioning: [],
+      priceRange: 'all',
       sort: 'featured',
       searchQuery: '',
       inStockOnly: false

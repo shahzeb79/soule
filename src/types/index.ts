@@ -78,10 +78,13 @@ export interface CartItem {
   quantity: number;
 }
 
+export type PriceRange = 'all' | 'under-15000' | '15000-22000' | 'above-22000';
+
 export interface FilterState {
   category: Category;
   activity: Activity[];
   cushioning: Cushioning[];
+  priceRange?: PriceRange;
   sort: 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'rating';
   searchQuery: string;
   inStockOnly: boolean;

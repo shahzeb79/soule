@@ -100,7 +100,7 @@ export const AboutUsModal: React.FC<AboutUsModalProps> = ({
                 <span>Nationwide Presence in Pakistan</span>
               </div>
               <h3 className="text-2xl font-bold tracking-tight text-white">
-                Official soule Flagship Footwear in Pakistan (PKR)
+                Official soule Flagship Footwear in Pakistan
               </h3>
               <p className="text-sm text-neutral-300 leading-relaxed">
                 We are proud to serve the runner, athlete, and urban explorer community across Pakistan.

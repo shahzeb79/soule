@@ -135,7 +135,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   <Mail className="w-4 h-4 text-[#0CB581] shrink-0" />
                   <div>
                     <p className="text-[10px] text-neutral-400 font-bold uppercase">Email</p>
-                    <p className="font-semibold text-neutral-800 text-[11px]">support@soule.pk</p>
+                    <p className="font-semibold text-neutral-800 text-[11px]">info@souleshoe.com</p>
                   </div>
                 </div>
 
@@ -143,7 +143,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   <Phone className="w-4 h-4 text-[#0CB581] shrink-0" />
                   <div>
                     <p className="text-[10px] text-neutral-400 font-bold uppercase">WhatsApp / Call</p>
-                    <p className="font-semibold text-neutral-800 text-[11px]">+92 300 8923456</p>
+                    <p className="font-semibold text-neutral-800 text-[11px]">+92 335 2963338</p>
                   </div>
                 </div>
 
