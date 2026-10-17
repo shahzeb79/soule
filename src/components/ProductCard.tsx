@@ -74,7 +74,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Multi-angle indicator pill */}
         {hasMultipleAngles && (
           <span className="absolute bottom-3 left-3 text-[9px] font-bold text-neutral-600 bg-white/80 backdrop-blur-xs px-2 py-0.5 rounded shadow-2xs z-10 group-hover:bg-black group-hover:text-white transition-colors">
-            {isHovered ? 'Angle 2 Preview' : 'Multi-Angle'}
+            {isHovered ? '3/4 Angle Preview' : '4 Angles Available'}
           </span>
         )}
 

@@ -120,47 +120,95 @@ class HeadlessCMSClient {
             const data = docSnap.data();
             const rawPrice = (data as any).pricePKR ?? (data as any).priceCHF ?? (data as any).price ?? 18500;
             const pkrPrice = getNumericPKR(rawPrice);
+            const catalogMatch = PRODUCTS_DATA.find((p) => p.id === docSnap.id || p.slug === data.slug);
+            const fallbackAngles = catalogMatch?.colorways?.[0]?.angles;
+
+            const colorways = (Array.isArray(data.colorways) && data.colorways.length > 0
+              ? data.colorways
+              : catalogMatch?.colorways || [
+                  {
+                    id: 'cw-default',
+                    name: 'Standard Chalk',
+                    primaryColorHex: '#E2E8F0',
+                    accentColorHex: '#1E293B',
+                    image: data.image || '',
+                    angles: fallbackAngles
+                  }
+                ]
+            ).map((cw: any, idx: number) => {
+              const matchedCatalogCw = catalogMatch?.colorways?.[idx] || catalogMatch?.colorways?.[0];
+              const cAngles = matchedCatalogCw?.angles;
+              const side = cw.angles?.side || cw.image || cAngles?.side || '';
+              const perspective = cw.angles?.perspective || cAngles?.perspective || side;
+              const top = cw.angles?.top || cAngles?.top || side;
+              const sole = cw.angles?.sole || cAngles?.sole || side;
+              return {
+                ...cw,
+                image: side,
+                angles: {
+                  side,
+                  perspective,
+                  top,
+                  sole,
+                  ...(cw.angles || {})
+                }
+              };
+            });
+
             firestoreProducts.push({
               id: docSnap.id,
               slug: data.slug || docSnap.id,
-              name: data.name || 'Untitled Shoe',
-              subCategory: data.subCategory || data.category || 'Performance Footwear',
-              gender: data.gender || 'men',
-              activity: data.activity || 'Road Running',
-              cushioning: data.cushioning || 'Responsive',
+              name: data.name || catalogMatch?.name || 'Untitled Shoe',
+              subCategory: data.subCategory || data.category || catalogMatch?.subCategory || 'Performance Footwear',
+              gender: data.gender || catalogMatch?.gender || 'men',
+              activity: data.activity || catalogMatch?.activity || 'Road Running',
+              cushioning: data.cushioning || catalogMatch?.cushioning || 'Responsive',
               priceCHF: pkrPrice,
-              isNew: Boolean(data.isNew),
-              isBestSeller: Boolean(data.isBestSeller),
-              badge: data.badge || '',
-              weight: data.weight || '230 g',
-              heelDrop: data.heelDrop || '6 mm',
-              stability: data.stability || 'Neutral',
-              lacing: data.lacing || 'Speed Lacing',
-              description: data.description || '',
-              features: Array.isArray(data.features) ? data.features : [],
-              technologies: Array.isArray(data.technologies) ? data.technologies : [],
-              sustainability: data.sustainability || {
+              isNew: Boolean(data.isNew ?? catalogMatch?.isNew),
+              isBestSeller: Boolean(data.isBestSeller ?? catalogMatch?.isBestSeller),
+              badge: data.badge || catalogMatch?.badge || '',
+              weight: data.weight || catalogMatch?.weight || '230 g',
+              heelDrop: data.heelDrop || catalogMatch?.heelDrop || '6 mm',
+              stability: data.stability || catalogMatch?.stability || 'Neutral',
+              lacing: data.lacing || catalogMatch?.lacing || 'Speed Lacing',
+              description: data.description || catalogMatch?.description || '',
+              features: Array.isArray(data.features) && data.features.length > 0 ? data.features : (catalogMatch?.features || []),
+              technologies: Array.isArray(data.technologies) && data.technologies.length > 0 ? data.technologies : (catalogMatch?.technologies || []),
+              sustainability: data.sustainability || catalogMatch?.sustainability || {
                 recycledContent: '40% Recycled Content',
                 details: 'Sustainable materials'
               },
-              rating: Number(data.rating || 4.8),
-              reviewCount: Number(data.reviewCount || 120),
-              colorways: Array.isArray(data.colorways) && data.colorways.length > 0 ? data.colorways : [
-                {
-                  id: 'cw-default',
-                  name: 'Standard Chalk',
-                  primaryColorHex: '#E2E8F0',
-                  accentColorHex: '#1E293B',
-                  image: data.image || ''
-                }
-              ],
-              sizes: Array.isArray(data.sizes) && data.sizes.length > 0 ? data.sizes : [
+              rating: Number(data.rating || catalogMatch?.rating || 4.8),
+              reviewCount: Number(data.reviewCount || catalogMatch?.reviewCount || 120),
+              colorways,
+              sizes: Array.isArray(data.sizes) && data.sizes.length > 0 ? data.sizes : (catalogMatch?.sizes || [
                 { size: 'US 8', us: 'US 8', eu: 'EU 41.5', inStock: true },
                 { size: 'US 9', us: 'US 9', eu: 'EU 42.5', inStock: true },
                 { size: 'US 10', us: 'US 10', eu: 'EU 44', inStock: true }
-              ]
+              ])
             });
           });
+
+          // If Firestore had older shoes or fewer than the full 30 On-inspired models,
+          // seamlessly merge in the remaining On-inspired models from PRODUCTS_DATA
+          const existingIds = new Set(firestoreProducts.map((p) => p.id));
+          let hasMissingModels = false;
+          for (const catalogShoe of PRODUCTS_DATA) {
+            if (!existingIds.has(catalogShoe.id)) {
+              firestoreProducts.push({
+                ...catalogShoe,
+                priceCHF: getNumericPKR(catalogShoe.priceCHF)
+              });
+              hasMissingModels = true;
+            }
+          }
+
+          if (hasMissingModels) {
+            // Seed the new On-inspired models to Firestore in background
+            this.seedDemoProductsToFirestore().catch((err) => {
+              console.warn('Syncing new On-inspired products to Firestore in background:', err);
+            });
+          }
 
           this.memoryCache = firestoreProducts;
           this.cacheTimestamp = now;
@@ -284,9 +332,36 @@ class HeadlessCMSClient {
         if (docSnap.exists()) {
           const data = docSnap.data();
           const rawPrice = (data as any).pricePKR ?? (data as any).priceCHF ?? (data as any).price ?? 18500;
+          const catalogMatch = PRODUCTS_DATA.find((p) => p.id === docSnap.id || p.slug === data.slug);
+          const fallbackAngles = catalogMatch?.colorways?.[0]?.angles;
+
+          const colorways = (Array.isArray(data.colorways) && data.colorways.length > 0
+            ? data.colorways
+            : catalogMatch?.colorways || []
+          ).map((cw: any, idx: number) => {
+            const matchedCatalogCw = catalogMatch?.colorways?.[idx] || catalogMatch?.colorways?.[0];
+            const cAngles = matchedCatalogCw?.angles;
+            const side = cw.angles?.side || cw.image || cAngles?.side || '';
+            const perspective = cw.angles?.perspective || cAngles?.perspective || side;
+            const top = cw.angles?.top || cAngles?.top || side;
+            const sole = cw.angles?.sole || cAngles?.sole || side;
+            return {
+              ...cw,
+              image: side,
+              angles: {
+                side,
+                perspective,
+                top,
+                sole,
+                ...(cw.angles || {})
+              }
+            };
+          });
+
           return {
             id: docSnap.id,
             ...data,
+            colorways: colorways.length > 0 ? colorways : (catalogMatch?.colorways || []),
             priceCHF: getNumericPKR(rawPrice)
           } as Product;
         }

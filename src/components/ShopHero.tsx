@@ -107,7 +107,11 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Typography & Category Selector */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="lg:col-span-7 space-y-5">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-black"></span>
+              <span>Zurich Biomechanics · 2026 Collection</span>
+            </div>
 
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#121212] leading-[1.1] max-w-xl">
               {title}
@@ -182,10 +186,10 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
                     Campaign Spotlight
                   </span>
                   <h3 className="text-lg sm:text-xl font-bold mt-1 text-white">
-                    CloudRush 2 · Flagship
+                    CloudMonster Max 2 · Flagship
                   </h3>
                   <p className="text-xs text-neutral-300 mt-0.5 max-w-xs">
-                    Tested across 10,000 Swiss marathon miles. Zero-gravity push off.
+                    Tested across 10,000 Swiss marathon miles. Monster hollow pods with radical rocker propulsion.
                   </p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shadow-lg">

@@ -178,7 +178,7 @@ export function ShopApp() {
   };
 
   const handleOpenFlagship = async () => {
-    const flagship = await headlessCMS.getProductById('men-soule-cloudrush-2');
+    const flagship = (await headlessCMS.getProductById('men-cloudmonster-max-2')) || products[0];
     if (flagship) {
       setSelectedProduct(flagship);
     }

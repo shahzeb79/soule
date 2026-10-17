@@ -110,10 +110,8 @@ export const ShoeGraphic: React.FC<ShoeGraphicProps> = ({
           </g>
         ))}
 
-        <circle cx="250" cy="120" r="12" fill="#FFFFFF" stroke="#0F172A" strokeWidth="3" />
-        <text x="250" y="123" textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="bold" fill="#0F172A">
-          SOULE
-        </text>
+        {/* Central Speedboard Channel with Swiss precision flex groove */}
+        <line x1="200" y1="120" x2="300" y2="120" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="4 4" />
       </svg>
     );
   }
@@ -190,9 +188,8 @@ export const ShoeGraphic: React.FC<ShoeGraphicProps> = ({
           fillOpacity="0.2"
         />
 
-        {/* Iconic soule micro insignia */}
-        <circle cx="160" cy="148" r="8" fill={accentColor} />
-        <circle cx="160" cy="148" r="4" fill="#FFFFFF" />
+        {/* Heel reinforcement texture without branding */}
+        <path d="M125 155 L145 150" stroke={accentColor} strokeWidth="1.5" strokeOpacity="0.4" />
       </svg>
     );
   }
@@ -309,24 +306,11 @@ export const ShoeGraphic: React.FC<ShoeGraphicProps> = ({
       <path d="M270 128 L258 148" stroke={accentColor} strokeWidth="3" strokeLinecap="round" />
       <path d="M300 134 L288 156" stroke={accentColor} strokeWidth="3" strokeLinecap="round" />
 
-      {/* Geometric Modern Minimalist Branding: The soule winged 'S' emblem */}
-      <g transform="translate(178, 136) scale(0.24)">
-        <path
-          d="M 68 36 C 62 26, 48 24, 34 25 C 22 26, 18 36, 19 46 C 20 57, 28 66, 42 75 C 49 79, 54 84, 52 90 C 49 96, 38 98, 25 97 C 14 96, 6 92, 4 86 C 3 83, 6 81, 9 83 C 17 87, 27 88, 37 87 C 44 86, 46 81, 42 76 C 36 71, 26 64, 18 55 C 11 47, 12 33, 23 24 C 36 14, 56 16, 67 27 C 70 30, 69 34, 68 36 Z"
-          fill="#0CB581"
-        />
-        <path
-          d="M 48 56 C 58 45, 75 30, 95 19 C 96 18, 97 19, 96 21 C 89 31, 76 43, 60 55 C 53 60, 49 61, 48 56 Z"
-          fill="#0CB581"
-        />
-        <path
-          d="M 52 64 C 62 55, 76 43, 92 37 C 93 36, 94 38, 92 39 C 83 48, 71 58, 59 66 C 55 69, 52 68, 52 64 Z"
-          fill="#0CB581"
-        />
-        <path
-          d="M 56 74 C 65 67, 75 58, 83 55 C 84 55, 84 56, 83 57 C 76 64, 68 71, 60 76 C 57 78, 55 77, 56 74 Z"
-          fill="#0CB581"
-        />
+      {/* Logo-Free Technical Support Ribs */}
+      <g stroke={accentColor} strokeWidth="1.5" strokeOpacity="0.25" strokeLinecap="round">
+        <line x1="185" y1="135" x2="165" y2="160" />
+        <line x1="195" y1="138" x2="175" y2="163" />
+        <line x1="205" y1="142" x2="185" y2="167" />
       </g>
     </svg>
   );
